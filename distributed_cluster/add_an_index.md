@@ -4,14 +4,10 @@ To add data to Elasticsearch, we need an _index_ -- a place to store related
 data.  In reality, an index is just a ``logical namespace'' which points to
 one or more physical _shards_.
 
-向Elasticsearch添加数据，我们需要_索引_——一个存储相关数据的地方。实际上，索引只是一个指向一个或多个物理 _分片_ 的`逻辑名字空间`。
-
 A _shard_ is a low-level ``worker unit''. Each shard is a single instance of
 Lucene, and is a complete search engine in its own right. Our documents are
 stored and indexed in shards, but our applications don't talk to them directly.
 Instead, they talk to an index.
-
-_分片_是一个低级别的工作单元。每个分片都是Lucene的一个实例，并且是它自己权力范围内的一个完整的搜索引擎。文档存储在和被索引到分片，但应用并不会直接访问他们。相反，他们会访问索引。
 
 Shards are how Elasticsearch distributes data around your cluster. Think of
 shards as containers for data. Documents are stored in shards, and shards are
@@ -94,3 +90,14 @@ were to lose that node, we would lose all copies of our data.
 Currently our cluster is fully functional but at risk of data loss in case of
 hardware failure.
 
+向Elasticsearch添加数据，我们需要_索引_——一个存储相关数据的地方。实际上，索引只是一个指向一个或多个物理 _分片_ 的`逻辑名字空间`。
+
+_分片_是一个低级别的工作单元。每个分片都是Lucene的一个实例，并且是一个完整的独立的搜索引擎。文档存储在和被索引到分片，但应用并不会直接访问他们。相反，他们会访问索引。
+
+分片是Elasticsearch如何在集群中分发数据的方式，你可以把分片想象成数据的容器。文档存储在分片中，而分片则被分配给集群的各个节点。随着集群的扩容或者，Elasticsearch将自动在节点之间迁移分片来保持集群的平衡。
+
+一个分片可以是主分片或者一个副本分片。索引中的每份文档属于一个主分片，所以你拥有的主分片的数量就决定了你的索引能存储的数据的最大量。
+
+****
+
+虽然一个主分片可以存数据的量理论上没有限制，但实际上是有限制的。最大分片的大小完全取决于你的使用情况：你的硬件，你的文档的大小和复杂程度，你如何所以和查询你的文档，以及你期望的响应时间。
