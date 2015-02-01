@@ -1,33 +1,24 @@
-=== Add failover
+# 添加故障转移
 
-Running a single node means that you have a single point of failure -- there
-is no redundancy. Fortunately all we need to do to protect ourselves from data
-loss is to start another node. A new node will join the cluster automatically
-as long as it has the same cluster name set in its config file, and it can
-talk to the other nodes.
+运行单个节点意味着你有一个单点故障——没有冗余。好在要防止我们的数据丢失只需要启用另一个节点。只要它的集群名称和配置文件中的一样，一个新的节点会自动加入集群，并且它可以和其他的节点通信。
 
-If we start a second node, our cluster would look like <<cluster-two-nodes>>.
+如果我们启用第二个节点，我们的集群看起来就是一个`双节点集群——所有主分片与副本分片都是被分配的`。
 
-[[cluster-two-nodes]]
-.A two-node cluster -- all primary and replica shards are allocated
-image::images/02-03_two_nodes.png["A two-node cluster"]
 
-The second node has joined the cluster and three _replica shards_ have been
-allocated to it -- one for each primary shard.  That means that we can lose
-either node and all of our data will be intact.
+![双节点集群](../images/elas_0203.png)
 
-Any newly indexed document will first be stored on a primary shard, then
-copied in parallel to the associated replica shard(s). This ensures that our
-document can be retrieved from a primary shard or from any of its replicas.
+图1. 双节点集群——所有主分片与副本分片都是被分配的
 
-The `cluster-health` now shows a status of `green`, which means that all 6
-shards (all 3 primary shards and all 3 replica shards) are active:
+第二个节点已经加入了集群，并且给他分配了三个 _副本分片_ （每个主分片一个副本）。这也就是说我们可以丢失任意一个节点，然而我们的数据仍然完好无损。
 
-[source,js]
---------------------------------------------------
+任何一个新建的索引文档讲先存储到一个主分片，然后拷贝到对应的副本分片。这就保证了我们的数据可以从主分片获取，也可以从它的任意一个副本获取。
+
+`集群健康度`现在显示的状态是`绿`，这就意味着6个分片(3个主分片和三个副本分片)是活动的。
+
+```
 {
    "cluster_name":          "elasticsearch",
-   "status":                "green", <1>
+   "status":                "green", (1)
    "timed_out":             false,
    "number_of_nodes":       2,
    "number_of_data_nodes":  2,
@@ -37,7 +28,7 @@ shards (all 3 primary shards and all 3 replica shards) are active:
    "initializing_shards":   0,
    "unassigned_shards":     0
 }
---------------------------------------------------
-<1> Cluster `status` is `green`.
+```
+1. 集群 `状态` 是 `绿`。
 
-Our cluster is not only fully functional but also _always available_.
+我们的集群不仅是功能完整的，并且是 _永久可用的_ 。
