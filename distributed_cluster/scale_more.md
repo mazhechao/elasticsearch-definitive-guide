@@ -1,46 +1,27 @@
-==== Then scale some more
+# 扩容更多
 
-But what if we want to scale our search to more than 6 nodes?
+如果我们想把集群扩容到大于6个节点呢？
 
-The number of primary shards is fixed at the moment an index is created.
-Effectively, that number defines the maximum amount of data that can be
-*stored* in the index.  (The actual number depends on your data, your hardware
-and your use case). However, read requests -- searches or document retrieval
--- can be handled by a primary *or* a replica shard, so the more copies of
-data that you have, the more search throughput we can handle.
+主分片的数量是在索引创建的那一刻就确定的。实际上，这个数量决定了索引能够 _存储_ 的数据的最大数量。（实际的数量取决于你的数据，你的硬件和用法）。不过读请求（搜索或者取回文档）可以被主分片 _或_ 者副本分片处理，所以，数据副本越多，集群能处理的请求的吞吐量也就越大。
 
-The number of replica shards can be changed dynamically on a live cluster,
-allowing us to scale up or down as demand requires. Let's increase the number
-of replicas from the default of `1` to `2`:
+在一个活动的集群上，副本分片的数量是可以动态变化的，这就允许我们根据需求来扩展或者收缩。让我们来把副本数量从默认的`1`增加到`2`:
 
-[source,js]
---------------------------------------------------
+```
 PUT /blogs/_settings
 {
    "number_of_replicas" : 2
 }
---------------------------------------------------
-// SENSE: 020_Distributed_Cluster/30_Replicas.json
+```
 
-[[cluster-three-nodes-two-replicas]]
-.Increasing the `number_of_replicas` to 2
-image::images/02-05_replicas.png["A three-node cluster with two replica shards"]
+![有两个副本分片的三节点集群](../images/elas_0205.png "有两个副本分片的三节点集群")
 
-As can be seen in <<cluster-three-nodes-two-replicas>>, the `blogs` index now
-has 9 shards: 3 primaries and 6 replicas. If we were to add another three
-nodes to our 6 node cluster, we would again have one shard per node, and our
-cluster would be able to handle *50%* more search requests than before.
+图1. 增加 `副本数量` 到 2
 
-[NOTE]
-===================================================
+从有两个副本分片的三节点集群，我们可见索引`blog`现在有9个分片：3个主分片和6个副本分片。我们仍然可以让一个节点放一个分片，这样我们的集群就可以比之前多处理 _50%_ 的搜索请求。
 
-Of course, just having more replica shards on the same number of nodes doesn't
-increase our performance at all because each shard has access to a smaller
-fraction of its node's resources.  You need to add hardware to increase
-throughput.
+----
+当然，在相同数量的节点上增加更多的副本分片不会使得性能增强，因为每个分片能使用它的节点的资源更少了。你需要增加硬件来提高吞吐量。
 
-But these extra replicas do mean that we have more redundancy. With the node
-configuration above, we can now afford to lose two nodes without losing any
-data.
+但是，这些多出来的副本却意味着我们有了更多的冗余。就像上面那样配置，我们就能承受失去两个节点而不丢失任何数据。
 
-===================================================
+----
