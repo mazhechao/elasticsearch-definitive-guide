@@ -1,35 +1,17 @@
 # 错误恢复
 
-We've said that Elasticsearch can cope when nodes fail, so let's go
-ahead and try it out. If we kill the first node our cluster looks like
-<<cluster-post-kill>>.
+我们已经说过Elasticsearch可以容忍节点失败，让我们继续看看并且尝试下。如果我们杀掉第一个节点，我们的节点看起来就像一个`杀过节点的集群`。
 
-[[cluster-post-kill]]
-.Cluster after killing one node
-image::images/02-06_node_failure.png["The cluster after killing one node"]
+![杀掉一个节点的集群](../images/elas_0206.png "杀掉一个节点的集群")
 
-The node we killed was the master node. A cluster must have a master node in
-order to function correctly, so the first thing that happened was that the
-nodes elected a new master: `Node 2`.
+图1. 杀掉一个节点的集群
 
-Primary shards `1` and `2` were lost when we killed `Node 1` and our index
-cannot function properly if it is missing primary shards. If we had checked
-the cluster health at this point, we would have seen status `red`: not all
-primary shards are active!
+被我们杀掉的节点是master节点。为了正确地运行，一个集群必须有一个master节点，所以接下来的第一件事就是选举一个新的master节点：`节点2`。
 
-Fortunately a complete copy of the two lost primary shards exists on other
-nodes, so the first thing that the new master node did was to promote the
-replicas of these shards on `Node 2` and `Node 3` to be primaries, putting us
-back into cluster health `yellow`.  This promotion process was instantaneous,
-like the flick of a switch.
+当我们杀掉`节点1`时，主分片`1`和`2`就丢失了，如果缺少主分片，我们的索引就不能正常工作了。这时候如果我们检查集群健康的话，我们应该看到状态是`红`：不是所有的主分片是存活的。
 
-So why is our cluster health `yellow` and not `green`? We have all 3 primary
-shards, but we specified that we wanted two replicas of each primary and
-currently only one replica is assigned. This prevents us from reaching
-`green`, but we're not too worried here: were we to kill `Node 2` as well, our
-application could *still* keep running without data loss because `Node 3`
-contains a copy of every shard.
+幸好这两个丢失的主分片在其他节点上都有完整的拷贝，所以新的master节点做的第一件事就是促使`节点2`和`节点3`上的这些副本分片变为主分片，并将集群健康度变回`黄`。这个过程是一瞬间的，就像按一下开关一样。
 
-By now you should have a reasonable idea of how shards allow Elasticsearch to
-scale horizontally and to ensure that your data is safe. Later we will examine
-the life-cycle of a shard in more detail.
+那为什么我们的集群健康度是`黄`而不是`绿`呢？我们有了全部的3个分片，但是我们希望每个主分片有两个副本，而当前只分配了一个副本。这阻止了集群健康度达到`绿`，但这里我们也无需过度担心：即使我们杀掉`节点2`，我们的应用 _仍然_ 能够运行而没有数据丢失，因为`节点3`有每个分片的拷贝。
+
+至此，你应该能清楚地知道分配是如何让Elasticsearch横向扩展以及如何保障你的数据是安全的。后面我们会更详细地研究一个分片的生命周期。
